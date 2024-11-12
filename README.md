@@ -93,3 +93,9 @@ CREATE TABLE urls (
 
 The motivation is actually learn more on dockerize and load testing aim for high availability
 
+## Todo
+- [ ] create dockerfile
+- [ ] create docker-compose
+- [ ] setup k6
+- [ ] current logging is bad, no log when request error or unhandled error
+- [ ] Setup ci/cd
