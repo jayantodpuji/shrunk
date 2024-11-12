@@ -1,11 +1,14 @@
 package main
 
 import (
+	"crypto/sha1"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 )
 
@@ -27,13 +30,8 @@ func main() {
 		log.Fatalf("unable to reach the database: %v", err)
 	}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			return
-		}
-
+	r := mux.NewRouter()
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		type requestBody struct {
 			URL string `json:"url"`
 		}
@@ -45,15 +43,50 @@ func main() {
 			return
 		}
 
-	})
+		slug := shrunk(req.URL)
+		_, err = db.Exec("insert into urls (slug, original) values ($1, $2)", slug, req.URL)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
-	mux.HandleFunc("/:slug", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(slug))
+	}).Methods(http.MethodPost)
+
+	r.HandleFunc("/{slug}", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
-	})
 
-	server := &http.Server{Addr: ":3002", Handler: mux}
+		slug := mux.Vars(r)["slug"]
+		var og string
+		err = db.QueryRow("select original from urls where slug = $1", slug).Scan(&og)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		_, err = db.Exec("update urls set clicked = clicked + 1 where slug = $1", slug)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(w, r, og, http.StatusFound)
+	}).Methods(http.MethodGet)
+
+	server := &http.Server{Addr: ":3002", Handler: r}
+	log.Printf("server started listening on %s", server.Addr)
 	server.ListenAndServe()
+}
+
+func shrunk(originalUrl string) string {
+	hash := sha1.Sum([]byte(originalUrl))
+	return base64.RawURLEncoding.EncodeToString(hash[:])[:7]
 }
