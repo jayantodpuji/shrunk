@@ -14,7 +14,7 @@ import (
 
 func main() {
 	var err error
-	connStr := "user=postgres dbname=shrunk host=localhost port=5432 sslmode=disable"
+	connStr := "user=postgres dbname=shrunk password=rahasia host=localhost port=5433 sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal("database connection failed", err)

@@ -1,1 +1,0 @@
-1. [Belajar docker pemula ](https://youtu.be/7tVt0JVkJy8?si=8ey-I_oxFUqRsmQx)
