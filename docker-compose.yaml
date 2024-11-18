@@ -1,0 +1,23 @@
+version: '3'
+services:
+  shrunk-postgres:
+    image: postgres
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_PASSWORD=rahasia
+      - POSTGRES_DB=shrunk
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+  shrunk-backend:
+    build: .
+    ports:
+      - 3002:3002
+    environment:
+      - DB_HOST=shrunk-postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=rahasia
+      - DB_NAME=shrunk
+    depends_on:
+      - shrunk-postgres
