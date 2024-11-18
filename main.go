@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -14,7 +16,13 @@ import (
 
 func main() {
 	var err error
-	connStr := "user=postgres dbname=shrunk password=rahasia host=localhost port=5433 sslmode=disable"
+	connStr := fmt.Sprintf("user=%s dbname=%s password=%s host=%s port=%s sslmode=disable",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"))
+
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal("database connection failed", err)

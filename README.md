@@ -99,3 +99,47 @@ The motivation is actually learn more on dockerize and load testing aim for high
 - [ ] setup k6
 - [ ] current logging is bad, no log when request error or unhandled error
 - [ ] Setup ci/cd
+
+
+## How to Run (without docker-compose)
+Application and database must be run in same network
+1. create network by `docker network create shrunk` (`shrunk` is network name, you can change it)
+2. run postgres container by
+```
+  docker run -d \
+  -p 5433:5432 \
+  --name shrunk-postgres \
+  -e POSTGRES_PASSWORD=rahasia \
+  -e POSTGRES_DB=shrunk \
+  -v $(pwd)/init.sql:/docker-entrypoint-initdb.d/init.sql \
+  --network shrunk \
+  postgres
+```
+[Reference](https://hub.docker.com/_/postgres#:~:text=start%20a%20postgres%20instance)
+
+`--network shrunk` means run the container in network `shrunk`
+
+`-v $(pwd)/init.sql:/docker-entrypoint-initdb.d/init.sql \` mounts local `init.sql` file into the container's /docker-entrypoint-initdb.d/ directory to automatically initialize the database on first run. ps: only the first time the container is started
+
+3. run application container by build the image first and run the container
+
+build image
+```
+docker build -t shrunk:1.2 .
+```
+
+run container
+```
+docker run -d \
+-p 3002:3002 \
+--name shrunk \
+--network shrunk \
+shrunk:1.2
+```
+
+4. send request
+```
+curl -X POST http://localhost:3002/ \
+-H "Content-Type: application/json" \
+-d '{"url": "https://example.com"}'
+```
