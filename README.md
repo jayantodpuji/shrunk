@@ -26,9 +26,7 @@ CREATE TABLE urls (
 1. Clone the repository
 2. Install dependencies:
    ```bash
-   go mod init urlshortener
-   go get github.com/gorilla/mux
-   go get github.com/lib/pq
+   go mod tidy
    ```
 3. Set up the PostgreSQL database and create the required table
 4. Run the service:
@@ -94,8 +92,8 @@ CREATE TABLE urls (
 The motivation is actually learn more on dockerize and load testing aim for high availability
 
 ## Todo
-- [ ] create dockerfile
-- [ ] create docker-compose
+- [x] create dockerfile
+- [x] create docker-compose
 - [ ] setup k6
 - [ ] current logging is bad, no log when request error or unhandled error
 - [ ] Setup ci/cd

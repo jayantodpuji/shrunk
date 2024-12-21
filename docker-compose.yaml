@@ -9,6 +9,11 @@ services:
       - POSTGRES_DB=shrunk
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   shrunk-backend:
     build: .
     ports:
@@ -20,4 +25,5 @@ services:
       - DB_PASSWORD=rahasia
       - DB_NAME=shrunk
     depends_on:
-      - shrunk-postgres
+      shrunk-postgres:
+        condition: service_healthy
