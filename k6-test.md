@@ -108,3 +108,72 @@ The avg `http_req_duration` is take 2.04s
 
 ### Iteration#2
 
+I ask AI to improve the backend code. You can see the change from this [commit](https://github.com/jayantodpuji/shrunk/commit/eab7a504b96d1668e8f1e50a34561f8dd1f8a4f1).
+
+The changes are:
+1. Change default database connection pool
+2. Use prepared statement
+3. Use object pooling on request body
+4. Add server timeout
+5. Retry limitation on slug generation to prevent infinite loop
+6. Async update on clicked url (out of topic yet for now)
+
+The result is passed.
+```
+     checks.........................: 100.00% 41541 out of 41541
+     data_received..................: 5.1 MB  79 kB/s
+     data_sent......................: 89 MB   1.4 MB/s
+     http_req_blocked...............: avg=6.44µs  min=2µs    med=5µs     max=1.31ms  p(90)=8µs     p(95)=9µs
+     http_req_connecting............: avg=146ns   min=0s     med=0s      max=396µs   p(90)=0s      p(95)=0s
+   ✓ http_req_duration..............: avg=27.49ms min=1.81ms med=24.27ms max=205.2ms p(90)=49.15ms p(95)=59.12ms
+       { expected_response:true }...: avg=27.49ms min=1.81ms med=24.27ms max=205.2ms p(90)=49.15ms p(95)=59.12ms
+   ✓ http_req_failed................: 0.00%   0 out of 41541
+     http_req_receiving.............: avg=68.43µs min=16µs   med=63µs    max=4.85ms  p(90)=100µs   p(95)=119µs
+     http_req_sending...............: avg=28.33µs min=7µs    med=23µs    max=7.69ms  p(90)=34µs    p(95)=45µs
+     http_req_tls_handshaking.......: avg=0s      min=0s     med=0s      max=0s      p(90)=0s      p(95)=0s
+     http_req_waiting...............: avg=27.4ms  min=1.75ms med=24.17ms max=205ms   p(90)=49.06ms p(95)=59.01ms
+     http_reqs......................: 41541   639.072772/s
+     iteration_duration.............: avg=27.72ms min=1.95ms med=24.5ms  max=205.5ms p(90)=49.37ms p(95)=59.37ms
+     iterations.....................: 41541   639.072772/s
+     vus............................: 1       min=1              max=20
+     vus_max........................: 20      min=20             max=20
+```
+
+it reduce the avg `http_req_duration` from 2.04s to 27.49ms. Wow!.
+
+But since AI made several changes, and i do not understand yet, So let's revert back to original code, and change the slug generation part only.
+
+### Iteration#3
+
+I change the slug generation to include timestamp. You can see the change on this [commit](https://github.com/jayantodpuji/shrunk/commit/6999d1a06a2062f27a3c1ac49974df0fb8ef18c5).
+
+The result is passed. But still got slug collusion.
+```
+
+     ✗ response code was 200
+      ↳  99% — ✓ 37127 / ✗ 1
+
+     checks.........................: 99.99% 37127 out of 37128
+     data_received..................: 4.6 MB 70 kB/s
+     data_sent......................: 80 MB  1.2 MB/s
+     http_req_blocked...............: avg=5.58µs  min=2µs    med=5µs     max=1.66ms   p(90)=7µs     p(95)=8µs
+     http_req_connecting............: avg=156ns   min=0s     med=0s      max=462µs    p(90)=0s      p(95)=0s
+   ✓ http_req_duration..............: avg=30.8ms  min=67µs   med=11.35ms max=236.73ms p(90)=86.01ms p(95)=100.5ms
+       { expected_response:true }...: avg=30.8ms  min=67µs   med=11.35ms max=236.73ms p(90)=86.01ms p(95)=100.5ms
+   ✓ http_req_failed................: 0.00%  1 out of 37128
+     http_req_receiving.............: avg=64.48µs min=16µs   med=61µs    max=1.17ms   p(90)=92µs    p(95)=108µs
+     http_req_sending...............: avg=24.17µs min=7µs    med=21µs    max=4.46ms   p(90)=33µs    p(95)=43µs
+     http_req_tls_handshaking.......: avg=0s      min=0s     med=0s      max=0s       p(90)=0s      p(95)=0s
+     http_req_waiting...............: avg=30.71ms min=0s     med=11.26ms max=236.65ms p(90)=85.91ms p(95)=100.4ms
+     http_reqs......................: 37128  571.653251/s
+     iteration_duration.............: avg=31.03ms min=1.82ms med=11.58ms max=236.92ms p(90)=86.23ms p(95)=100.74ms
+     iterations.....................: 37128  571.653251/s
+     vus............................: 1      min=1              max=20
+     vus_max........................: 20     min=20             max=20
+```
+
+In [Iteration#2](#Iteration#2), the backend log output a lot of slug `pkey` error, but in this iteration, it only output 1.
+
+### Iteration#4
+
+Let's add combination timestamp + random number to reduce slug collusion. TBD
