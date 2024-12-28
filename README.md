@@ -141,3 +141,21 @@ curl -X POST http://localhost:3002/ \
 -H "Content-Type: application/json" \
 -d '{"url": "https://example.com"}'
 ```
+
+## How to Run (with compose)
+1. change directory into root folder
+```
+cd shrunk
+```
+
+2. run
+```
+docker-compose up -d
+```
+
+3. send request
+```
+curl -X POST http://localhost:3002/ \
+-H "Content-Type: application/json" \
+-d '{"url": "https://example.com"}'
+```
