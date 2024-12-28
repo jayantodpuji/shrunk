@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -51,11 +52,24 @@ func main() {
 			return
 		}
 
-		slug := shrunk(req.URL)
-		_, err = db.Exec("insert into urls (slug, original) values ($1, $2)", slug, req.URL)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+		// Try to insert with incrementing counter until we succeed
+		counter := 0
+		var slug string
+		for {
+			slug = generateSlug(req.URL, counter)
+
+			// Try to insert the URL
+			_, err = db.Exec("insert into urls (slug, original) values ($1, $2)", slug, req.URL)
+			if err != nil {
+				// Check if it's a unique constraint violation
+				if isUniqueViolation(err) {
+					counter++
+					continue // Try again with incremented counter
+				}
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			break // If we get here, insert succeeded
 		}
 
 		w.Write([]byte(slug))
@@ -94,7 +108,21 @@ func main() {
 	server.ListenAndServe()
 }
 
-func shrunk(originalUrl string) string {
-	hash := sha1.Sum([]byte(originalUrl))
+func generateSlug(originalUrl string, counter int) string {
+	// If counter is 0, just use the original hash
+	if counter == 0 {
+		hash := sha1.Sum([]byte(originalUrl))
+		return base64.RawURLEncoding.EncodeToString(hash[:])[:7]
+	}
+
+	// If counter > 0, append it to the URL before hashing
+	urlWithCounter := originalUrl + "#" + strconv.Itoa(counter)
+	hash := sha1.Sum([]byte(urlWithCounter))
 	return base64.RawURLEncoding.EncodeToString(hash[:])[:7]
+}
+
+// Helper function to check if an error is a unique constraint violation
+func isUniqueViolation(err error) bool {
+	// This checks for Postgres unique violation error code
+	return err.Error() == `pq: duplicate key value violates unique constraint "urls_pkey"`
 }
