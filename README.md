@@ -1,3 +1,12 @@
+## Motivation
+
+I want to learn few things:
+
+1. How to design URL shortener
+2. How to dockerize
+3. How to test with K6. You can read this [log](./k6-test.md) for the story.
+
+
 ## Overview
 
 `shrunk` is a simple url shortener made with Go and postgreSQL with very simple setup and functionality
@@ -94,7 +103,7 @@ The motivation is actually learn more on dockerize and load testing aim for high
 ## Todo
 - [x] create dockerfile
 - [x] create docker-compose
-- [ ] setup k6
+- [x] setup k6
 - [ ] current logging is bad, no log when request error or unhandled error
 - [ ] Setup ci/cd
 
