@@ -73,3 +73,38 @@ Result: It pass the threshold.
      vus............................: 5       min=2              max=20
      vus_max........................: 20      min=20             max=20
 ```
+
+## Test#2
+
+With same scenario and threshold, i change the `url` payload to be very long URL. You can see the changes from this [commit](https://github.com/jayantodpuji/shrunk/commit/88ccea0aeed6760fe60aa32f35f954a9e1ba69d3).
+
+I run k6 with options to export the result as html so that i can view it in browser
+```
+K6_WEB_DASHBOARD_EXPORT=html-report.html k6 run k6/api-test-with-scenario-post-only-long-url.js
+```
+
+The test result is failed on `http_req_duration` threshold
+```
+     checks.........................: 100.00% 569 out of 569
+     data_received..................: 70 kB   1.1 kB/s
+     data_sent......................: 1.2 MB  19 kB/s
+     http_req_blocked...............: avg=39.08µs min=3µs      med=6µs   max=8.73ms p(90)=9µs   p(95)=20µs
+     http_req_connecting............: avg=27.55µs min=0s       med=0s    max=8.64ms p(90)=0s    p(95)=0s
+   ✗ http_req_duration..............: avg=2.04s   min=185.87ms med=2.17s max=3.6s   p(90)=2.72s p(95)=2.89s
+       { expected_response:true }...: avg=2.04s   min=185.87ms med=2.17s max=3.6s   p(90)=2.72s p(95)=2.89s
+   ✓ http_req_failed................: 0.00%   0 out of 569
+     http_req_receiving.............: avg=91.11µs min=33µs     med=83µs  max=283µs  p(90)=129µs p(95)=147.6µs
+     http_req_sending...............: avg=39.57µs min=16µs     med=27µs  max=2.73ms p(90)=54µs  p(95)=71µs
+     http_req_tls_handshaking.......: avg=0s      min=0s       med=0s    max=0s     p(90)=0s    p(95)=0s
+     http_req_waiting...............: avg=2.04s   min=185.76ms med=2.17s max=3.6s   p(90)=2.72s p(95)=2.89s
+     http_reqs......................: 569     8.73982/s
+     iteration_duration.............: avg=2.04s   min=186.15ms med=2.17s max=3.6s   p(90)=2.72s p(95)=2.89s
+     iterations.....................: 569     8.73982/s
+     vus............................: 2       min=2          max=20
+     vus_max........................: 20      min=20         max=20
+```
+
+The avg `http_req_duration` is take 2.04s
+
+### Iteration#2
+
