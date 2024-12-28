@@ -172,7 +172,7 @@ The result is passed. But still got slug collusion.
      vus_max........................: 20     min=20             max=20
 ```
 
-In [Iteration#2](Iteration#2), the backend log output a lot of slug `pkey` error, but in this iteration, it only output 1.
+In [Iteration#2](#iteration2), the backend log output a lot of slug `pkey` error, but in this iteration, it only output 1.
 
 ### Iteration#4
 
