@@ -1,11 +1,6 @@
-## Motivation
+## Wiki
 
-I want to learn few things:
-
-1. How to design URL shortener
-2. How to dockerize
-3. How to test with K6. You can read this [log](./k6-test.md) for the story.
-
+You can check project [Wiki](https://github.com/jayantodpuji/shrunk/wiki) for more complete information.
 
 ## Overview
 
